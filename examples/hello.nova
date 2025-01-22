@@ -1,0 +1,5 @@
+use io::print;
+
+func main : {
+    print("Hello, world!\n");
+}

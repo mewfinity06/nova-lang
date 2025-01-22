@@ -1,0 +1,61 @@
+use io::print;
+
+/* Adds the "IntoRepr" interface   | 
+|  Adds the "Debug" interface      | 
+|  Adds the "Stringify" interface */
+
+#repr Usize | #debug | #stringify ->
+struct Status : Enum {
+    @start = 0;
+    @step  = 1000;
+
+    Entry,      // Usize : 0
+    Manager,    //       : 1000
+    Admin,      //       : 2000
+
+    // Explicit setting of value
+    Unknown : -1000,
+}
+
+/* repr can be defined like so:
+        const employee = Employee::new(Status::Entry, "Billy");
+        const id       = employee.into_repr(); // -> will be equal to Usize 
+*/
+#repr Employee::id ->
+struct Employee : Compact {
+    id     : Usize,
+    status : Status,
+    name   : String,
+}
+
+Employee : impl {
+
+    // Creates a shared mutable called ID_GEN;
+    shared mut ID_GEN : Usize = 0;
+
+    public func new(status: Status, name: String = "Unknown") : Self {
+        // `defer` executes after the current block.
+        // If `defer` is preceded with the `ret` keyword,
+        // it will execute after the function return or 
+        // end of function scope
+        defer Self::ID_GEN++;
+
+        let id = Self::ID_GEN + status.into_repr();
+
+        return Self { id, status, name }
+    }
+}
+
+Employee : impl Debug {
+    func debug : &Str {
+        return {
+            self.id.stringify() + " : " + self.status.stringify() " " + self.name;
+        }
+    }
+}
+
+func main : {
+    let admin = Employee::new(Status::Admin, "Ashton");
+
+    print("<>\n", admin); // `<>` for debug print, `{}` for display print
+}
