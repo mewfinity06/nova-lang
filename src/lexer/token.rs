@@ -117,7 +117,6 @@ impl Display for Location {
         write_yellow!(f, "{}", self.line)?;
         write!(f, ":")?;
         write_green!(f, "{}", self.column)?;
-        write!(f, ":")?;
         Ok(())
     }
 }
@@ -195,7 +194,7 @@ impl Display for Token {
         // Location -> 
         // file:0:0 -> kind | word
 
-        write!(f, "{} -> {}{} | {:?}", self.loc, offset_kind, self.kind, self.word)
+        write!(f, "{}-> {}{} | {:?}", self.loc, offset_kind, self.kind, self.word)
     }
 }
 
