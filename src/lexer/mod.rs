@@ -9,7 +9,7 @@ pub struct Lexer {
     file_name: String,
     source: Vec<char>,
     cur: usize,
-    line: usize,  // Current line number
+    line: usize,   // Current line number
     column: usize, // Current column number
 }
 
@@ -54,7 +54,7 @@ impl Lexer {
             Some(self.lex_number())
         } else if c == '"' {
             Some(self.lex_string())
-        } else if c == '/' && self.peek() == Some('/') {
+        } else if c == '/' && (self.peek() == Some('/') || self.peek() == Some('*')) {
             Some(self.lex_comment())
         } else if c == '#' && self.peek().is_some_and(|l| l.is_alphabetic() || l == '_') {
             Some(self.lex_directive())
@@ -98,15 +98,25 @@ impl Lexer {
 
         let word: String = self.source[start..self.cur].iter().collect();
 
-        if let Some(keyword_token) = Token::is_keyword(&word, self.file_name.clone(), self.line, self.column) {
+        if let Some(keyword_token) =
+            Token::is_keyword(&word, self.file_name.clone(), self.line, self.column)
+        {
             return keyword_token;
         }
 
-        if let Some(type_token) = Token::is_type(&word, self.file_name.clone(), self.line, self.column) {
+        if let Some(type_token) =
+            Token::is_type(&word, self.file_name.clone(), self.line, self.column)
+        {
             return type_token;
         }
 
-        Token::new(word, TokenKind::Ident, self.file_name.clone(), self.line, self.column)
+        Token::new(
+            word,
+            TokenKind::Ident,
+            self.file_name.clone(),
+            self.line,
+            self.column,
+        )
     }
 
     fn lex_directive(&mut self) -> Token {
@@ -120,7 +130,13 @@ impl Lexer {
 
         let word: String = self.source[start..self.cur].iter().collect();
 
-        Token::new(word, TokenKind::Directive, self.file_name.clone(), self.line, self.column)
+        Token::new(
+            word,
+            TokenKind::Directive,
+            self.file_name.clone(),
+            self.line,
+            self.column,
+        )
     }
 
     fn lex_number(&mut self) -> Token {
@@ -130,7 +146,13 @@ impl Lexer {
         }
 
         let number: String = self.source[start..self.cur].iter().collect();
-        Token::new(number, TokenKind::Number, self.file_name.clone(), self.line, self.column)
+        Token::new(
+            number,
+            TokenKind::Number,
+            self.file_name.clone(),
+            self.line,
+            self.column,
+        )
     }
 
     fn lex_string(&mut self) -> Token {
@@ -143,20 +165,61 @@ impl Lexer {
 
         let string: String = self.source[start..self.cur].iter().collect();
         self.advance(); // Skip closing quote
-        Token::new(string, TokenKind::StringLiteral, self.file_name.clone(), self.line, self.column)
+        Token::new(
+            string,
+            TokenKind::StringLiteral,
+            self.file_name.clone(),
+            self.line,
+            self.column,
+        )
     }
 
     fn lex_comment(&mut self) -> Token {
-        self.advance_n(2); // Skip the "//"
+        if self.source[self.cur + 1] == '/' {
+            self.advance_n(2); // Skip the "//"
 
-        let start = self.cur;
+            let start = self.cur;
 
-        while self.cur < self.source.len() && self.source[self.cur] != '\n' {
-            self.advance();
+            while self.cur < self.source.len() && self.source[self.cur] != '\n' {
+                self.advance();
+            }
+
+            let comment: String = self.source[start..self.cur].iter().collect();
+            Token::new(
+                comment,
+                TokenKind::Comment,
+                self.file_name.clone(),
+                self.line,
+                self.column,
+            )
+        } else if self.source[self.cur + 1] == '*' {
+            self.advance_n(2); // Skip the "/*"
+
+            let start = self.cur;
+
+            while self.cur + 1 < self.source.len() && !(self.source[self.cur] == '*' && self.source[self.cur + 1] == '/') {
+                if self.source[self.cur] == '\n' {
+                    self.line += 1; // Increment the line number
+                    self.column = 1; // Reset the column number
+                } else {
+                    self.column += 1; // Move to the next column
+                }
+                self.advance();
+            }
+
+            self.advance_n(2); // Skip the "*/"
+
+            let comment: String = self.source[start..self.cur - 2].iter().collect();
+            Token::new(
+                comment,
+                TokenKind::Comment,
+                self.file_name.clone(),
+                self.line,
+                self.column,
+            )
+        } else {
+            panic!("Unexpected comment syntax");
         }
-
-        let comment: String = self.source[start..self.cur].iter().collect();
-        Token::new(comment, TokenKind::Comment, self.file_name.clone(), self.line, self.column)
     }
 
     fn lex_symbol(&mut self) -> Option<Token> {
@@ -165,14 +228,26 @@ impl Lexer {
             if let Some(token) = TokWord::get_kind(&three_char_symbol) {
                 self.cur += 3;
                 self.column += 3;
-                return Some(Token::new(three_char_symbol, token, self.file_name.clone(), self.line, self.column));
+                return Some(Token::new(
+                    three_char_symbol,
+                    token,
+                    self.file_name.clone(),
+                    self.line,
+                    self.column,
+                ));
             }
 
             let two_char_symbol: String = self.source[self.cur..self.cur + 2].iter().collect();
             if let Some(token) = TokWord::get_kind(&two_char_symbol) {
                 self.cur += 2;
                 self.column += 2;
-                return Some(Token::new(two_char_symbol, token, self.file_name.clone(), self.line, self.column));
+                return Some(Token::new(
+                    two_char_symbol,
+                    token,
+                    self.file_name.clone(),
+                    self.line,
+                    self.column,
+                ));
             }
         }
 
@@ -180,10 +255,22 @@ impl Lexer {
         self.advance();
 
         if let Some(token) = TokWord::get_kind(&one_char_symbol) {
-            return Some(Token::new(one_char_symbol, token, self.file_name.clone(), self.line, self.column));
+            return Some(Token::new(
+                one_char_symbol,
+                token,
+                self.file_name.clone(),
+                self.line,
+                self.column,
+            ));
         }
 
-        Some(Token::new(one_char_symbol, TokenKind::Unknown, self.file_name.clone(), self.line, self.column))
+        Some(Token::new(
+            one_char_symbol,
+            TokenKind::Unknown,
+            self.file_name.clone(),
+            self.line,
+            self.column,
+        ))
     }
 
     fn peek(&self) -> Option<char> {
