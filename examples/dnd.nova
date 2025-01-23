@@ -5,7 +5,7 @@
 use std::io::println;
 use std::rand;
 
-#repr String -> 
+#debug -> 
 struct Race : Enum {
     Elf,
     Dragonborn,
@@ -15,7 +15,7 @@ struct Race : Enum {
     // To be added...
 }
 
-#repr String -> 
+#debug -> 
 struct Class : Enum {
     Barbarian,
     Bard,
@@ -28,13 +28,14 @@ struct Class : Enum {
     Warlock,
 }
 
-#repr String -> 
+#debug -> 
 struct Alignment : Enum {
     Lawful  : Enum { Good, Neutral, Evil },
     Chaotic : Enum { Good, Neutral, Evil }
     Neutral : Enum { Good, True,    Evil },
 }
 
+#debug ->
 struct Character : Compact {
     name:      String,
     race:      Race,
@@ -56,12 +57,14 @@ Character : impl {
         name: String, 
         race: Race, 
         class: Class, 
-        alignment: Alignment
+        alignment: Alignment = Alignment::Neutral::True
     ) : Self {
         return Self {
             name,
             race,
             class,
+            // Spread only works if the return is of the correct type
+            // and the number of elements fits
             stats: ...Self::get_random_stats(),
         }
     }
@@ -80,6 +83,17 @@ Character : impl {
 }
 
 func main : {
-    // Initialize rand's arg
-    rand::init_arg();
+    // Initialize rand's arg with specific values, for non-specific arg, please use init_arg
+    // This arg will use xs values, then random values
+    rand::init_arg_with([16, 17, 15, 18, 12, 16]);
+
+    /* Creates a character:
+        Name:      Kaarjuak Navull
+        Race:      Dragonborn,
+        Class:     Paladin,
+        Alignment: True Neutral,
+    */
+    const kaarjuak = Character::new("Kaarjuak Navull", Race::Dragonborn, Class::Paladin);
+
+    println("Character: {}", kaarjuak);
 }
