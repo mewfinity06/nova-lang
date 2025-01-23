@@ -49,7 +49,8 @@ impl<'a> TokWord<'a> {
         TokWord(".", TokenKind::Dot),
         TokWord(",", TokenKind::Comma),
         TokWord("::", TokenKind::DoubleColon),
-        TokWord("=+=", TokenKind::Test),
+        TokWord("...", TokenKind::Spread),
+        TokWord("..", TokenKind::To),
     ];
 
     pub fn get_kind(word: &str) -> Option<TokenKind> {

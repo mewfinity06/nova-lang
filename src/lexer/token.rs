@@ -59,6 +59,9 @@ pub enum TokenKind {
     FatArrow,    // =>
     ThinArrow,   // ->
 
+    Spread, // ...
+    To,     // ..
+
     At, // @
 
     Bang,
@@ -72,8 +75,6 @@ pub enum TokenKind {
     StringLiteral,
     Number,
     Comment,
-
-    Test, // =+=
 
     #[default]
     Unknown,
@@ -131,11 +132,14 @@ pub struct Token {
 impl Token {
     const KEYWORDS: &'static [&str] = &[
         "func", "return", "use", "defer", "const", "mut", "switch", "if", "else", "while", "for",
-        "loop", "struct", "public", "private", "impl", "self", "shared", "ret",
+        "loop", "struct", "public", "private", "impl", "self", "shared", "ret", "range", "in",
     ];
     const TYPES: &'static [&str] = &[
+        // Normal Types
         "None", "String", "Str", "Char", "Int", "Float", "Bool", "Byte", "Complex", "Compact",
         "Loose", "Enum", "Usize", "Isize", "Self",
+        // Special Types
+        "Vec", "List", "Array", "Map", "Set", "Tuple", "Option", "Result",
     ];
 
     pub fn new(
