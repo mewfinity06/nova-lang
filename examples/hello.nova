@@ -1,4 +1,4 @@
-use io::print;
+use std::io::print;
 
 func main : {
     print("Hello, world!\n");

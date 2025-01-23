@@ -1,0 +1,69 @@
+use std::io::println;
+
+struct Greeting : Enum {
+    Hello,
+    Goodbye
+}
+
+func greet_in_spanish(greeting: Greeting, name: &Str = "amigo") : {
+
+    // Switch statements are much like Rust's match
+    switch greeting.to_lower_case() {
+        : Greeting::Hello => println("Hola, {}!", name),
+        : Greeting::Goodbye => {
+            println("Adios, {}!", name);
+        }
+    }
+
+}
+
+func two_sum(nums: Vec<Int>, target: Int) : {
+    mut res: Vec<Int>; // Initialized to an empty Vec
+
+    for i in 0..nums.len() {
+        for j in (i + 1)..nums.len() {
+            if nums[i] + nums[j] == target {
+                // Return block will return the final piece of code
+                // This block will return the value of `res`
+                return {
+                    res = [i, j];
+                    res
+                };
+            }
+        }
+    }
+    return res;
+}
+
+#repr String ->
+struct Animal : Enum {
+    Donkey,
+    Horse,
+    Cat,
+    Dog,
+    Fox
+}
+
+func make_noise(animal: Animal) : {
+    if animal == Donkey {
+        println("Heehaw");
+    } else if animal == Horse {
+        println("Neigh");
+    } else if animal == Cat {
+        println("Meow");
+    } else if animal == Dog {
+        println("Bark");
+    } else {
+        // WHAT DOES THE FOX SAY!
+        println("What does the {} say?", animal);
+    }
+}
+
+func main : {
+    greet_in_spanish(Greeting::Hello, "Programmer"); // -> "Hola, Programmer!"
+
+    let sum = two_sum([2,7,11,15], 9);
+    println!("{} + {} = 0", ...sum); // Spreads sum | -> "2 + 7 = 9"
+
+    make_noise(Animal::Fox); // -> "What does the Fox say?"
+}

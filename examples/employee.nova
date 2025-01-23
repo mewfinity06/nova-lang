@@ -1,9 +1,10 @@
-use io::print;
+use std::io::print;
 
 /* Adds the "IntoRepr" interface   | 
 |  Adds the "Debug" interface      | 
 |  Adds the "Stringify" interface */
 
+// Enum repr defaults to Usize
 #repr Usize | #debug | #stringify ->
 struct Status : Enum {
     @start = 0;
@@ -21,6 +22,7 @@ struct Status : Enum {
         const employee = Employee::new(Status::Entry, "Billy");
         const id       = employee.into_repr(); // -> will be equal to Usize 
 */
+// Note: There is no default impl for Compact or Loose structs
 #repr Employee::id ->
 struct Employee : Compact {
     id     : Usize,
@@ -33,6 +35,7 @@ Employee : impl {
     // Creates a shared mutable called ID_GEN;
     shared mut ID_GEN : Usize = 0;
 
+    /* if `name` isn't included, it will default to "Unknown" */
     public func new(status: Status, name: String = "Unknown") : Self {
         // `defer` executes after the current block.
         // If `defer` is preceded with the `ret` keyword,
@@ -57,5 +60,5 @@ Employee : impl Debug {
 func main : {
     let admin = Employee::new(Status::Admin, "Ashton");
 
-    print("<>\n", admin); // `<>` for debug print, `{}` for display print
+    print("{}\n", admin);
 }

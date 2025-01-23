@@ -1,0 +1,85 @@
+/*
+    This program is mostly for fun, but also to show off some stuff!
+*/
+
+use std::io::println;
+use std::rand;
+
+#repr String -> 
+struct Race : Enum {
+    Elf,
+    Dragonborn,
+    Dwarf,
+    Gnome,
+    Human,
+    // To be added...
+}
+
+#repr String -> 
+struct Class : Enum {
+    Barbarian,
+    Bard,
+    Cleric,
+    Druid,
+    Fighter,
+    Monk,
+    Paladin,
+    Wizard,
+    Warlock,
+}
+
+#repr String -> 
+struct Alignment : Enum {
+    Lawful  : Enum { Good, Neutral, Evil },
+    Chaotic : Enum { Good, Neutral, Evil }
+    Neutral : Enum { Good, True,    Evil },
+}
+
+struct Character : Compact {
+    name:      String,
+    race:      Race,
+    class:     Class,
+    alignment: Alignment,
+    // Stats will automatically be assumes as a Compact struct
+    stats : {
+        strength:       Usize,
+        dexterity:      Usize,
+        constitution:   Usize,
+        intelligence:   Usize,
+        wisdom:         Usize,
+        charisma:       Usize,
+    },
+}
+
+Character : impl {
+    public func new(
+        name: String, 
+        race: Race, 
+        class: Class, 
+        alignment: Alignment
+    ) : Self {
+        return Self {
+            name,
+            race,
+            class,
+            stats: ...Self::get_random_stats(),
+        }
+    }
+
+    // Define a private function that can only be accessed from within this impl block
+    private get_random_stats : [Usize; 6] {
+        mut res: [Usize; 6]; // Initialize empty Array of 6
+
+        for _ in range 6 {
+            // Turbo fish, will refresh rand::arg after each use
+            res[i] = rand::new::<Usize>();
+        }
+
+        return res;
+    }
+}
+
+func main : {
+    // Initialize rand's arg
+    rand::init_arg();
+}
