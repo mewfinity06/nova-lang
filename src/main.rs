@@ -17,12 +17,17 @@ fn get_contents_via_mut_buffer(file_path: &String) -> String {
 fn main() {
     let cmd = Command::parse();
 
-    let mut lexer = Lexer::new(cmd.file_path.to_string(), get_contents_via_mut_buffer(&cmd.file_path));
+    let mut lexer = Lexer::new(
+        cmd.file_path.to_string(),
+        get_contents_via_mut_buffer(&cmd.file_path),
+    );
     let tokens = lexer.lex();
 
-    for token in tokens {
+    for token in &tokens {
         println!("{}", token);
     }
+
+    println!("Token len: {}", tokens.len());
 }
 
 #[derive(Parser, Debug)]
