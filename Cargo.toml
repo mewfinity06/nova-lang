@@ -9,4 +9,4 @@ colour = "2.1.0"
 strum = "0.26.3"
 strum_macros = "0.26.4"
 # NDL (Nova Definition Language) parser
-ndl = { path = "./ndl" }
+ndl = { path = "../ndl" }
