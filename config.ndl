@@ -1,0 +1,9 @@
+ This is a comment and must be dismissed by the lexer
+
+# Vector
+[vec_starting_size] 0;
+[vec_growth_factor] 1.6;
+
+# Developer & Debugging
+[dev_mode] true;
+[debug]    true;
