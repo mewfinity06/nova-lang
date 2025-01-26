@@ -1,11 +1,32 @@
 use std::fs::File;
-use std::io::{BufReader, Read};
+use std::io::{BufReader, Read, Write};
 
 use clap::Parser;
 use lexer::Lexer;
 
+use std::process::Command as RustCommand;
+
 mod lexer;
 
+fn main() -> anyhow::Result<()> {
+    use std::path::Path;
+
+    let dir_path = "nova-definition-language"; // Change this to the directory you want to check
+    let exe_name = "ndl-parser"; // Linux executables usually don’t have ".exe"
+
+    let exe_path = Path::new(dir_path).join(exe_name);
+
+    if !exe_path.exists() && !exe_path.is_file() {
+        let _ = RustCommand::new("sh")
+            .arg("-c")
+            .arg("cd nova-definition-language && pwd && go build -o ndl-parser main.go && cd .. && pwd")
+            .output()?;
+    }
+    
+    Ok(())
+}
+
+///////////// IGNORE BELOW FOR THIS BRANCH ////////////////////
 fn get_contents_via_mut_buffer(file_path: &String) -> String {
     let mut data = String::new();
     let f = File::open(file_path).expect("Unable to open file");
@@ -14,7 +35,7 @@ fn get_contents_via_mut_buffer(file_path: &String) -> String {
     data
 }
 
-fn main() {
+fn main2() {
     let cmd = Command::parse();
 
     let mut lexer = Lexer::new(
