@@ -8,7 +8,7 @@ pub struct Config {
     vec_growth_factor: f64,
     dev_mode: bool,
     debug: bool,
-    output_file: String
+    output_file: String,
 }
 
 pub fn get_config() -> anyhow::Result<Config> {
