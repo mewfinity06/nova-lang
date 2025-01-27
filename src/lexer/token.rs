@@ -78,6 +78,7 @@ pub enum TokenKind {
 
     #[default]
     Unknown,
+    None,
     Eof,
 }
 
@@ -137,8 +138,7 @@ impl Token {
     const TYPES: &'static [&str] = &[
         // Normal Types
         "None", "String", "Str", "Char", "Int", "Float", "Bool", "Byte", "Complex", "Compact",
-        "Loose", "Enum", "Usize", "Isize", "Self",
-        // Special Types
+        "Loose", "Enum", "Usize", "Isize", "Self", // Special Types
         "Vec", "List", "Array", "Map", "Set", "Tuple", "Option", "Result",
     ];
 
@@ -166,9 +166,25 @@ impl Token {
         )
     }
 
+    pub fn none() -> Self {
+        Self::new(
+            String::from("None"),
+            TokenKind::None,
+            String::from("None"),
+            0,
+            0
+        )
+    }
+
     pub fn is_keyword(word: &str, file_name: String, line: usize, column: usize) -> Option<Self> {
         if Self::KEYWORDS.contains(&word) {
-            Some(Self::new(word.to_string(), TokenKind::Keyword, file_name, line, column))
+            Some(Self::new(
+                word.to_string(),
+                TokenKind::Keyword,
+                file_name,
+                line,
+                column,
+            ))
         } else {
             None
         }
@@ -176,7 +192,13 @@ impl Token {
 
     pub fn is_type(word: &str, file_name: String, line: usize, column: usize) -> Option<Self> {
         if Self::TYPES.contains(&word) {
-            Some(Self::new(word.to_string(), TokenKind::Type, file_name, line, column))
+            Some(Self::new(
+                word.to_string(),
+                TokenKind::Type,
+                file_name,
+                line,
+                column,
+            ))
         } else {
             None
         }
@@ -195,10 +217,14 @@ impl Display for Token {
             " ".repeat(offset)
         };
 
-        // Location -> 
+        // Location ->
         // file:0:0 -> kind | word
 
-        write!(f, "{}-> {}{} | {:?}", self.loc, offset_kind, self.kind, self.word)
+        write!(
+            f,
+            "{}-> {}{} | {:?}",
+            self.loc, offset_kind, self.kind, self.word
+        )
     }
 }
 

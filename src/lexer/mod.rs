@@ -197,7 +197,9 @@ impl Lexer {
 
             let start = self.cur;
 
-            while self.cur + 1 < self.source.len() && !(self.source[self.cur] == '*' && self.source[self.cur + 1] == '/') {
+            while self.cur + 1 < self.source.len()
+                && !(self.source[self.cur] == '*' && self.source[self.cur + 1] == '/')
+            {
                 if self.source[self.cur] == '\n' {
                     self.line += 1; // Increment the line number
                     self.column = 1; // Reset the column number
