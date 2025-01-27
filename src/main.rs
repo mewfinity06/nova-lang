@@ -1,23 +1,26 @@
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 use std::path::Path;
-
-use clap::Parser;
-use lexer::Lexer;
-
-use std::process::{Command as RustCommand, Output};
+use std::process::Command as RustCommand;
 
 mod lexer;
+mod config;
+use clap::Parser;
+
+use lexer::Lexer;
+use config::Config;
 
 fn main() -> anyhow::Result<()> {
-    // May not work on other operating systems
-    let dir_path = "nova-definition-language"; // The directory that ndl-parser should live in
+    ///////////// Build NDL Parser ///////////////////////
+
+    // May not work on other operating systems from Linux
+    let dir_path = "ndl-parser"; // The directory that ndl-parser should live in
     let exe_name = "ndl-parser"; // Linux executables usually don’t have ".exe"
 
     let exe_path = Path::new(dir_path).join(exe_name);
 
     if !directory_exists(dir_path) {
-        get_nova_definition_language_from_github()?;
+        get_ndl_parser_from_github()?;
     }
 
     // If ndl-parser does not exits
@@ -25,14 +28,30 @@ fn main() -> anyhow::Result<()> {
         build_ndl_parser()?;
     }
 
+    ///////////// Use NDL Parser ///////////////////////
+    
+    let ndl_parser = RustCommand::new(exe_path)
+        .arg(".")
+        .output()?;
+
+    let ndl_parsed = format!("{}", String::from_utf8_lossy(&ndl_parser.stdout));
+
+    println!("Parsed: {ndl_parsed}");
+
+    let def: Config = serde_json::from_str(&ndl_parsed)?;
+
+    println!("{:?}", def);
+
     Ok(())
 }
 
-fn get_nova_definition_language_from_github() -> anyhow::Result<()> {
+fn get_ndl_parser_from_github() -> anyhow::Result<()> {
     RustCommand::new("sh")
         .arg("-c")
-        .arg("git clone https://github.com/mewfinity06/nova-definition-language.git")
+        .arg("git clone https://github.com/mewfinity06/ndl-parser.git")
         .output()?;
+
+    println!("Built ndl-parser dir");
 
     Ok(())
 }
@@ -40,9 +59,11 @@ fn get_nova_definition_language_from_github() -> anyhow::Result<()> {
 fn build_ndl_parser() -> anyhow::Result<()> {
     RustCommand::new("sh")
         .arg("-c")
-        .arg("cd nova-definition-language && pwd && go build -o ndl-parser main.go && cd .. && pwd")
+        .arg("cd ndl-parser && go build -o ndl-parser main.go && cd ..")
         .output()?;
-    
+
+    println!("Build ndl-parser");
+
     Ok(())
 }
 
