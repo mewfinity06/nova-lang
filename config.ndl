@@ -1,4 +1,8 @@
- This is a comment and must be dismissed by the lexer
+# This is a comment and must be dismissed by the lexer
+# For the time being, the TOML syntax highlighting works the best
+
+# Output files
+[output] test_output;
 
 # Vector
 [vec_starting_size] 0;
