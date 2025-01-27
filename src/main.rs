@@ -3,29 +3,25 @@ use std::io::{BufReader, Read};
 
 mod config;
 mod lexer;
-use clap::Parser;
+mod parser;
 
-use lexer::Lexer;
+use clap::Parser as ClapParser;
+use parser::Parser;
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let _cfg = config::get_config().expect("Was not able to get config");
 
-    let mut lexer = Lexer::new(
+    let parser = Parser::new(
         cli.file_path.to_string(),
         get_contents_via_mut_buffer(&cli.file_path),
     );
 
-    let tokens = lexer.lex();
-
-    for token in &tokens {
-        println!("{:?}", token);
-    }
+    parser.parse_lr1();
 
     Ok(())
 }
 
-///////////// IGNORE BELOW FOR THIS BRANCH ////////////////////
 fn get_contents_via_mut_buffer(file_path: &String) -> String {
     let mut data = String::new();
     let f = File::open(file_path).expect("Unable to open file");
@@ -34,7 +30,7 @@ fn get_contents_via_mut_buffer(file_path: &String) -> String {
     data
 }
 
-#[derive(Parser, Debug)]
+#[derive(ClapParser, Debug)]
 #[command(version, about, long_about = "Welcome to the Nova Language Compiler")]
 struct Cli {
     /// The input file to use
