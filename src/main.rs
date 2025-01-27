@@ -1,29 +1,53 @@
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
+use std::path::Path;
 
 use clap::Parser;
 use lexer::Lexer;
 
-use std::process::Command as RustCommand;
+use std::process::{Command as RustCommand, Output};
 
 mod lexer;
 
 fn main() -> anyhow::Result<()> {
-    use std::path::Path;
-
-    let dir_path = "nova-definition-language"; // Change this to the directory you want to check
+    // May not work on other operating systems
+    let dir_path = "nova-definition-language"; // The directory that ndl-parser should live in
     let exe_name = "ndl-parser"; // Linux executables usually don’t have ".exe"
 
     let exe_path = Path::new(dir_path).join(exe_name);
 
-    if !exe_path.exists() && !exe_path.is_file() {
-        let _ = RustCommand::new("sh")
-            .arg("-c")
-            .arg("cd nova-definition-language && pwd && go build -o ndl-parser main.go && cd .. && pwd")
-            .output()?;
+    if !directory_exists(dir_path) {
+        get_nova_definition_language_from_github()?;
     }
+
+    // If ndl-parser does not exits
+    if !exe_path.exists() && !exe_path.is_file() {
+        build_ndl_parser()?;
+    }
+
+    Ok(())
+}
+
+fn get_nova_definition_language_from_github() -> anyhow::Result<()> {
+    RustCommand::new("sh")
+        .arg("-c")
+        .arg("git clone https://github.com/mewfinity06/nova-definition-language.git")
+        .output()?;
+
+    Ok(())
+}
+
+fn build_ndl_parser() -> anyhow::Result<()> {
+    RustCommand::new("sh")
+        .arg("-c")
+        .arg("cd nova-definition-language && pwd && go build -o ndl-parser main.go && cd .. && pwd")
+        .output()?;
     
     Ok(())
+}
+
+fn directory_exists(dir_path: &str) -> bool {
+    Path::new(dir_path).is_dir()
 }
 
 ///////////// IGNORE BELOW FOR THIS BRANCH ////////////////////
