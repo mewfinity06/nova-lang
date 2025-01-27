@@ -1,11 +1,31 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
 
+mod config;
+mod lexer;
 use clap::Parser;
+
 use lexer::Lexer;
 
-mod lexer;
+fn main() -> anyhow::Result<()> {
+    let cli = Cli::parse();
+    let _cfg = config::get_config().expect("Was not able to get config");
 
+    let mut lexer = Lexer::new(
+        cli.file_path.to_string(),
+        get_contents_via_mut_buffer(&cli.file_path),
+    );
+
+    let tokens = lexer.lex();
+
+    for token in &tokens {
+        println!("{:?}", token);
+    }
+
+    Ok(())
+}
+
+///////////// IGNORE BELOW FOR THIS BRANCH ////////////////////
 fn get_contents_via_mut_buffer(file_path: &String) -> String {
     let mut data = String::new();
     let f = File::open(file_path).expect("Unable to open file");
@@ -14,37 +34,13 @@ fn get_contents_via_mut_buffer(file_path: &String) -> String {
     data
 }
 
-fn main() {
-    let cmd = Command::parse();
-
-    let mut lexer = Lexer::new(
-        cmd.file_path.to_string(),
-        get_contents_via_mut_buffer(&cmd.file_path),
-    );
-    let tokens = lexer.lex();
-
-    for token in &tokens {
-        println!("{}", token);
-    }
-
-    println!("Token len: {}", tokens.len());
-}
-
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = "Welcome to the Nova Language Compiler")]
-struct Command {
+struct Cli {
     /// The input file to use
     file_path: String,
 
     /// The output file to use
     #[arg(short, default_value = "main")]
     output: Option<String>,
-
-    /// Enable debug mode | To be deprecated
-    #[arg(short, long)]
-    debug: bool,
-
-    /// Enable developer mode | To be deprecated
-    #[arg(long)]
-    dev: bool,
 }
