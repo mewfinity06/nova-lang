@@ -166,6 +166,7 @@ impl Token {
         )
     }
 
+    #[allow(dead_code)]
     pub fn none() -> Self {
         Self::new(
             String::from("None"),
