@@ -10,14 +10,15 @@ use parser::Parser;
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
     let _cfg = config::get_config().expect("Was not able to get config");
 
-    let parser = Parser::new(
+    let mut p = Parser::new(
         cli.file_path.to_string(),
         get_contents_via_mut_buffer(&cli.file_path),
     );
 
-    parser.parse_lr1();
+    let _parsed_tokens = p.parse_lr1();
 
     Ok(())
 }
