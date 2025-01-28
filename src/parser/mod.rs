@@ -1,33 +1,44 @@
+mod common;
+mod expr;
+
+use common::Parseable;
+use expr::Expr;
+
 use crate::lexer::{token::Token, Lexer};
+use std::iter::Peekable;
 
 pub struct Parser {
-    _tokens: Vec<Token>,             // Store tokens directly
-    iter: std::vec::IntoIter<Token>, // Store an iterator over the tokens
+    tokens: Peekable<std::vec::IntoIter<Token>>,
 }
 
 impl Parser {
     pub fn new(file_name: String, contents: String) -> Self {
-        let tokens = Lexer::new(file_name, contents).lex(); // Get owned tokens
-        let iter = tokens.clone().into_iter(); // Create an iterator
+        let tokens = Lexer::new(file_name, contents).lex().into_iter().peekable();
 
-        Self {
-            _tokens: tokens,
-            iter,
+        Self { tokens }
+    }
+
+    pub fn parse_lr1(&mut self) -> Vec<Box<dyn Parseable>> {
+        let mut results: Vec<Box<dyn Parseable>> = Vec::new();
+
+        while self.tokens.peek().is_some() {
+            // Clone iterator state to avoid consuming tokens prematurely
+            let mut temp_iter = self.tokens.clone();
+            
+            if let Some(parsed) = Expr::from_tokens(&mut temp_iter) {
+                let parsed = Box::new(parsed);
+                println!("Parsed: {:#?}", &parsed);
+                results.push(parsed);
+                
+                // Advance the real iterator by consuming the used tokens
+                for _ in 0..3 {
+                    self.tokens.next();
+                }
+            } else {
+                self.tokens.next(); // Consume token to prevent infinite loops
+            }
         }
-    }
 
-    pub fn parse_lr1(mut self) {
-        while let Some(token) = self.next_token() {
-            println!("This token   : {:?}", token);
-            println!("Peeked token : {:?}\n", self.peek().unwrap_or(&Token::none()));
-        }
-    }
-
-    fn next_token(&mut self) -> Option<Token> {
-        self.iter.next()
-    }
-
-    fn peek(&mut self) -> Option<&Token> {
-        self.iter.as_slice().first()
+        results
     }
 }
