@@ -2,7 +2,7 @@
 # For the time being, the TOML syntax highlighting works the best
 
 # Output files
-[output] test_output;
+[output] Exe;
 
 # Vector
 [vec_starting_size] 0;

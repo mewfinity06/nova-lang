@@ -14,7 +14,7 @@ impl Debug for Expr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Expr::Binary(op, lhs, rhs) => {
-                write!(f, "(Binary {} {:?} {:?})", op.word, lhs, rhs)
+                write!(f, "(Binary {} lhs {:?} rhs {:?})", op.word, lhs, rhs)
             },
             Expr::Unary(op, expr) => {
                 write!(f, "(Unary {} {:?})", op.word, expr)

@@ -1,5 +1,6 @@
 mod common;
 mod expr;
+mod binding_power;
 
 use common::Parseable;
 use expr::Expr;
@@ -27,7 +28,7 @@ impl Parser {
             
             if let Some(parsed) = Expr::from_tokens(&mut temp_iter) {
                 let parsed = Box::new(parsed);
-                println!("Parsed: {:#?}", &parsed);
+                println!("Parsed: {:?}", &parsed);
                 results.push(parsed);
                 
                 // Advance the real iterator by consuming the used tokens
