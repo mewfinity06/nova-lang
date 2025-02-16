@@ -11,10 +11,6 @@ Everything is subject to change, so reader beware!
 
 C and Rust are my favorite languages.
 
-## Nova Definition Language
-
-The [Nova definition language](https://github.com/mewfinity06/ndl-parser), or NDL, is how you can customize your Nova experience
-
 ## Semantics
 
 ### Hello, World
